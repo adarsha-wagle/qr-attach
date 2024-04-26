@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-// import { PDFDocument } from 'pdf-lib';
-// import html2canvas from 'html2canvas';
-// import ReactDOM from 'react-dom/client';
-// import { createPortal } from 'react-dom';
-// import QRCode from 'qrcode.react';
 
-import { Box, Button } from '@mui/material';
+import { Box, Button, DialogContent, Dialog } from '@mui/material';
 import { FileUploader } from 'react-drag-drop-files';
 
 import ClearIcon from '@mui/icons-material/Clear';
 import { PDFDocument } from 'pdf-lib';
 import QRCode from 'qrcode';
+
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import SecurityUpdateIcon from '@mui/icons-material/SecurityUpdate';
+import DocumentInfoPopup from './document_info_popup';
 
 const fileTypes = ['PDF'];
 
@@ -18,6 +17,8 @@ export default function UploadDocument() {
   const [originalFile, setOriginalFile] = useState(null);
 
   const [modifiedQrFile, setModifiedQrFile] = useState(null);
+
+  const [openDocumentPopup, setOpenDocumentPopup] = useState(false);
 
   const generatePdf = async (fileP) => {
     const reader = new FileReader();
@@ -82,7 +83,7 @@ export default function UploadDocument() {
     const a = document.createElement('a');
 
     a.href = url;
-    a.download = `${originalFile?.name}.pdf`;
+    a.download = `${originalFile?.name}withQr.pdf`;
 
     document.body.appendChild(a);
     a.click();
@@ -96,14 +97,21 @@ export default function UploadDocument() {
    * @returns {Promise<void>}
    *
    * Saves Pdf With and without Qr in Database
+   *
    */
-  const handleSaveToDb = () => {
+  const handleSaveToDb = (docExtraInfo) => {
+    console.log('extra info', docExtraInfo);
     console.log('modified pdf', modifiedQrFile);
     console.log('org pdf', originalFile);
   };
 
   const handleClearClick = () => {
     setOriginalFile(null);
+    setModifiedQrFile(null);
+  };
+
+  const handleOpenDocumentPopup = () => {
+    setOpenDocumentPopup(true);
   };
 
   return (
@@ -120,16 +128,36 @@ export default function UploadDocument() {
             </Button>
           </Box>
 
-          <Box>
-            <Button startIcon={<ClearIcon />} onClick={handleSaveToDb}>
+          <Box sx={{ display: 'flex', flexDirection: { md: 'row', xs: 'column' }, gap: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<CloudUploadIcon />}
+              onClick={handleOpenDocumentPopup}
+            >
               Add to db
             </Button>
-            <Button startIcon={<ClearIcon />} onClick={handleSaveToPc}>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: 'primary.dark' }}
+              startIcon={<SecurityUpdateIcon />}
+              onClick={handleSaveToPc}
+            >
               Save to local
             </Button>
           </Box>
         </>
       )}
+
+      <Dialog
+        fullWidth
+        maxWidth="sm"
+        open={openDocumentPopup}
+        onClose={() => setOpenDocumentPopup(false)}
+      >
+        <DialogContent sx={{ width: '100%' }}>
+          <DocumentInfoPopup handleSaveToDb={handleSaveToDb} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
