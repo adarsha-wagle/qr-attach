@@ -1,34 +1,56 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogContent } from '@mui/material';
 
-export default function DataGridDemo() {
-  const [clickedRow, setClickedRow] = React.useState();
-  const onButtonClick = (e, row) => {
-    e.stopPropagation();
-    setClickedRow(row);
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DeletePopup from 'src/components/popup/delete_popup';
+
+export default function DocumentTable() {
+  const [selectedTitle, setSelectedTitle] = React.useState('');
+
+  const [isdeletePopupOpen, setIsdeletePopupOpen] = React.useState(false);
+
+  const handleDeleteClick = () => {};
+
+  const handleDownloadWithQr = () => {};
+
+  const handleDownloadWithoutQr = () => {};
+
+  const openDeleteDialog = (e, row) => {
+    console.log('row', row);
+    setSelectedTitle(row?.documentTitle);
+    setIsdeletePopupOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setIsdeletePopupOpen(false);
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'firstName',
-      headerName: 'First name',
+      field: 'documentTitle',
+      headerName: 'Document Title',
+      width: 200,
+      editable: true,
+    },
+    {
+      field: 'created',
+      headerName: 'Created',
+      width: 200,
+      editable: true,
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
       width: 150,
       editable: true,
     },
     {
-      field: 'lastName',
-      headerName: 'Last name',
+      field: 'author',
+      headerName: 'Author',
       width: 150,
-      editable: true,
-    },
-    {
-      field: 'age',
-      headerName: 'Age',
-      type: 'number',
-      width: 110,
       editable: true,
     },
     {
@@ -36,33 +58,63 @@ export default function DataGridDemo() {
       headerName: 'Actions',
       description: 'Actions column.',
       sortable: false,
-      width: 160,
+      width: 400,
       renderCell: (params) => (
-        <Button onClick={(e) => onButtonClick(e, params.row)} variant="contained">
-          Delete
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            color="error"
+            onClick={(e) => openDeleteDialog(e, params.row)}
+            variant="contained"
+          >
+            Delete
+          </Button>
+          <Button
+            onClick={(e) => handleDownloadWithoutQr(e, params.row)}
+            variant="contained"
+            startIcon={<CloudDownloadIcon />}
+            sx={{ backgroundColor: 'primary' }}
+          >
+            With Qr
+          </Button>
+          <Button
+            onClick={(e) => handleDownloadWithQr(e, params.row)}
+            variant="contained"
+            startIcon={<CloudDownloadIcon />}
+            sx={{ backgroundColor: 'primary' }}
+          >
+            Without Qr
+          </Button>
+        </Box>
       ),
     },
   ];
 
   const rows = [
-    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+    { id: 1, documentTitle: 'Snow', created: 'Jon', status: 35, author: 'Ram' },
+    { id: 2, documentTitle: 'Lannister', created: 'Cersei', status: 42, author: 'Ram' },
+    { id: 3, documentTitle: 'Lannister', created: 'Jaime', status: 45, author: 'Ram' },
+    { id: 4, documentTitle: 'Stark', created: 'Arya', status: 16, author: 'Ram' },
+    { id: 5, documentTitle: 'Targaryen', created: 'Daenerys', status: null, author: 'Ram' },
+    { id: 6, documentTitle: 'Melisandre', created: null, status: 150, author: 'Ram' },
+    { id: 7, documentTitle: 'Clifford', created: 'Ferrara', status: 44, author: 'Ram' },
+    { id: 8, documentTitle: 'Frances', created: 'Rossini', status: 36, author: 'Ram' },
+    { id: 9, documentTitle: 'Roxie', created: 'Harvey', status: 65, author: 'Ram' },
   ];
 
   return (
     <div>
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} pageSize={5} rowsPerPageOptions={[5]} />
+        <DataGrid rows={rows} columns={columns} pstatusSize={5} rowsPerPstatusOptions={[5]} />
       </Box>
-      clickedRow: {clickedRow ? `${clickedRow.firstName}` : null}
+      <Dialog open={isdeletePopupOpen} onClose={closeDeleteDialog}>
+        <DialogContent>
+          <DeletePopup
+            deleteMessage={selectedTitle}
+            handleDeleteClick={handleDeleteClick}
+            handleCloseClick={closeDeleteDialog}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
