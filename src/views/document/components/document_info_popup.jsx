@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
+import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -13,14 +14,14 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 // import { useRouter } from 'src/routes/hooks';
 
 // ----------------------------------------------------------------------
-
-export default function DocumentInfoPopup(handleSaveToDb) {
+function DocumentInfoPopup({ handleSaveToDb }) {
   const [documentTitle, setDocumentTitle] = useState('');
   const [letterNumber, setLetterNumber] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
   const [issuedDate, setIssuedDate] = useState(new Date());
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const documentInfo = {
       documentTitle,
       letterNumber,
@@ -74,7 +75,7 @@ export default function DocumentInfoPopup(handleSaveToDb) {
               onChange={(newValue) => {
                 setIssuedDate(newValue);
               }}
-              renderInput={(params) => <TextField {...params} />}
+              slotProps={{ textField: { variant: 'outlined' } }}
             />
           </LocalizationProvider>
         </Stack>
@@ -93,3 +94,9 @@ export default function DocumentInfoPopup(handleSaveToDb) {
     </Card>
   );
 }
+
+export default React.memo(DocumentInfoPopup);
+
+DocumentInfoPopup.propTypes = {
+  handleSaveToDb: PropTypes.func,
+};

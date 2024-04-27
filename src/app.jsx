@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'src/global.css';
 
 import DashboardLayout from './layouts/dashboard';
-import PrivateRoute from './routes/private_route';
+// import PrivateRoute from './routes/private_route';
 import RootLayout from './layouts/root/root_layout';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -25,20 +25,20 @@ export const DocumentPage = lazy(() => import('src/pages/documentPage'));
 
 // ----------------------------------------------------------------------
 
-const ROLES = {
-  ADMIN: 'admin',
-};
+// const ROLES = {
+//   ADMIN: 'admin',
+// };
 
 export default function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<RootLayout />}>
-        <Route element={<PrivateRoute allowedRoles={[ROLES.ADMIN]} />}>
-          <Route path="/" element={<DashboardLayout />}>
-            <Route index element={<IndexPage />} />
-            <Route path="/user" element={<UserPage />} />
-            <Route path="/document" element={<DocumentPage />} />
-          </Route>
+        {/* <Route element={<PrivateRoute allowedRoles={[ROLES.ADMIN]} />}> */}
+        <Route path="/" element={<DashboardLayout />}>
+          <Route index element={<IndexPage />} />
+          <Route path="/user" element={<UserPage />} />
+          <Route path="/document" element={<DocumentPage />} />
+          {/* </Route> */}
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

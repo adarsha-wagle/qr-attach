@@ -1,16 +1,22 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, Dialog, DialogContent } from '@mui/material';
+import { Button, Dialog, DialogContent, Box } from '@mui/material';
 
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+
+import { selectAllDocuments } from 'src/redux/api/document_api_slice';
+
 import DeletePopup from 'src/components/popup/delete_popup';
+import { useSelector } from 'react-redux';
 
 export default function DocumentTable() {
   const [selectedTitle, setSelectedTitle] = React.useState('');
 
   const [isdeletePopupOpen, setIsdeletePopupOpen] = React.useState(false);
 
+  const documents = useSelector((state) => selectAllDocuments(state));
+
+  console.log('documents', documents);
   const handleDeleteClick = () => {};
 
   const handleDownloadWithQr = () => {};
