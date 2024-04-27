@@ -1,0 +1,11 @@
+import { toast } from 'react-toastify';
+
+export const throwSuccessToast = (message) => {
+  console.log(message);
+  toast.success(message, { position: 'top-right', autoClose: 2000 });
+};
+
+export const throwErrorToast = (message) => {
+  console.log(message);
+  toast.error(message, { position: 'top-right', autoClose: 2000 });
+};

@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-
 import PropTypes from 'prop-types';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import { Button } from '@mui/material';
 
+import { Card, Stack, TextField, Typography, Button } from '@mui/material';
+
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
-// import { useRouter } from 'src/routes/hooks';
-
 // ----------------------------------------------------------------------
-function DocumentInfoPopup({ handleSaveToDb }) {
+
+function DocumentInfoPopup({ handleSaveToDb, isLoading }) {
   const [documentTitle, setDocumentTitle] = useState('');
   const [letterNumber, setLetterNumber] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
@@ -22,11 +18,26 @@ function DocumentInfoPopup({ handleSaveToDb }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const date = new Date(issuedDate?.$d);
+
+    const year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+
+    // Adding leading zeros if necessary (well not necessary but this is how backend accepting)
+    // eslint-disable-next-line
+    month = month < 10 ? '0' + month : month;
+    // eslint-disable-next-line
+    day = day < 10 ? '0' + day : day;
+
+    const formattedDate = `${year}-${month}-${day}`;
+
     const documentInfo = {
       documentTitle,
       letterNumber,
       referenceNumber,
-      issuedDate,
+      issuedDate: formattedDate,
     };
 
     handleSaveToDb(documentInfo);
@@ -87,8 +98,10 @@ function DocumentInfoPopup({ handleSaveToDb }) {
           variant="contained"
           color="inherit"
           sx={{ my: 3 }}
+          disabled={isLoading}
+          startIcon={<CloudUploadIcon />}
         >
-          Upload
+          {isLoading ? 'Uploading' : 'Upload'}
         </Button>
       </form>
     </Card>
@@ -99,4 +112,5 @@ export default React.memo(DocumentInfoPopup);
 
 DocumentInfoPopup.propTypes = {
   handleSaveToDb: PropTypes.func,
+  isLoading: PropTypes.bool,
 };

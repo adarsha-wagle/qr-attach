@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { Box, Button, Card, Divider, Typography } from '@mui/material';
 
-function DeletePopup({ handleDeleteClick, handleCloseClick, deleteMessage }) {
+function DeletePopup({ handleDeleteClick, handleCloseClick, deleteMessage, isLoading }) {
   return (
     <Card sx={{ p: '0.75rem' }}>
       <Typography variant="subtitle1">Confirm Delete</Typography>
@@ -25,7 +25,7 @@ function DeletePopup({ handleDeleteClick, handleCloseClick, deleteMessage }) {
             }}
             onClick={handleDeleteClick}
           >
-            Delete
+            {isLoading ? 'Deleting' : 'Delete'}
           </Button>
         </Box>
       </Box>
@@ -39,4 +39,5 @@ DeletePopup.propTypes = {
   handleCloseClick: PropTypes.func.isRequired,
   handleDeleteClick: PropTypes.func.isRequired,
   deleteMessage: PropTypes.string,
+  isLoading: PropTypes.bool,
 };

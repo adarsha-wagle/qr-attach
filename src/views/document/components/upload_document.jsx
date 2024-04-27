@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 
-import { Box, Button, DialogContent, Dialog } from '@mui/material';
 import { FileUploader } from 'react-drag-drop-files';
+import QRCode from 'qrcode';
+import { Box, Button, DialogContent, Dialog } from '@mui/material';
+
+import { PDFDocument } from 'pdf-lib';
 
 import ClearIcon from '@mui/icons-material/Clear';
-import { PDFDocument } from 'pdf-lib';
-import QRCode from 'qrcode';
-
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SecurityUpdateIcon from '@mui/icons-material/SecurityUpdate';
+
+import { useAddNewDocumentMutation } from 'src/redux/api/document_api_slice';
+
+import { throwErrorToast, throwSuccessToast } from 'src/utils/throw_toast';
+
 import DocumentInfoPopup from './document_info_popup';
 
 const fileTypes = ['PDF'];
@@ -19,6 +24,8 @@ export default function UploadDocument() {
   const [modifiedQrFile, setModifiedQrFile] = useState(null);
 
   const [openDocumentPopup, setOpenDocumentPopup] = useState(false);
+
+  const [addNewDocument, { isLoading }] = useAddNewDocumentMutation();
 
   const generatePdf = async (fileP) => {
     const reader = new FileReader();
@@ -99,10 +106,35 @@ export default function UploadDocument() {
    * Saves Pdf With and without Qr in Database
    *
    */
-  const handleSaveToDb = (docExtraInfo) => {
+  const handleSaveToDb = async (docExtraInfo) => {
+    const { documentTitle, letterNumber, referenceNumber, issuedDate } = docExtraInfo;
     console.log('extra info', docExtraInfo);
     console.log('modified pdf', modifiedQrFile);
     console.log('org pdf', originalFile);
+
+    const formData = new FormData();
+
+    formData.append('pdf', originalFile);
+    formData.append('title', documentTitle);
+    formData.append('letterNumber', letterNumber);
+    formData.append('referenceNumber', referenceNumber);
+    formData.append('issuedDate', issuedDate);
+    formData.append('description', '');
+
+    try {
+      await addNewDocument(formData)
+        .unwrap()
+        .then(() => {
+          setOpenDocumentPopup(false);
+          setOriginalFile(null);
+          setModifiedQrFile(null);
+        });
+
+      throwSuccessToast('Document added successfully');
+    } catch (err) {
+      console.log('err', err);
+      throwErrorToast(err.data?.message || 'Unable to add document');
+    }
   };
 
   const handleClearClick = () => {
@@ -155,7 +187,7 @@ export default function UploadDocument() {
         onClose={() => setOpenDocumentPopup(false)}
       >
         <DialogContent sx={{ width: '100%' }}>
-          <DocumentInfoPopup handleSaveToDb={handleSaveToDb} />
+          <DocumentInfoPopup handleSaveToDb={handleSaveToDb} isLoading={isLoading} />
         </DialogContent>
       </Dialog>
     </div>

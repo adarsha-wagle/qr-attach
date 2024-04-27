@@ -3,7 +3,7 @@ import { apiSlice } from './apiSlice';
 
 const documentsAdapter = createEntityAdapter({
   // eslint-disable-next-line
-  sortComparer: (a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1),
+  // sortComparer: (a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1),
 });
 
 const initialState = documentsAdapter.getInitialState();
@@ -26,21 +26,18 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
     }),
     addNewDocument: builder.mutation({
-      query: (initialNote) => ({
-        url: '/notes',
+      query: (formData) => ({
+        url: '/documents',
         method: 'POST',
-        body: {
-          ...initialNote,
-        },
+        body: formData,
       }),
       invalidatesTags: [{ type: 'Document', id: 'LIST' }],
     }),
 
     deleteDocumentById: builder.mutation({
-      query: ({ id }) => ({
-        url: `/documents`,
+      query: (id) => ({
+        url: `/documents/${id}`,
         method: 'DELETE',
-        body: { id },
       }),
       invalidatesTags: (result, error, arg) => [{ type: 'Document', id: arg.id }],
     }),

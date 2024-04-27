@@ -4,28 +4,47 @@ import { Button, Dialog, DialogContent, Box } from '@mui/material';
 
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 
-import { selectAllDocuments } from 'src/redux/api/document_api_slice';
+import {
+  selectAllDocuments,
+  useDeleteDocumentByIdMutation,
+} from 'src/redux/api/document_api_slice';
 
 import DeletePopup from 'src/components/popup/delete_popup';
 import { useSelector } from 'react-redux';
+import { throwErrorToast, throwSuccessToast } from 'src/utils/throw_toast';
 
 export default function DocumentTable() {
   const [selectedTitle, setSelectedTitle] = React.useState('');
-
+  const [selectedId, setSelectedId] = React.useState(null);
   const [isdeletePopupOpen, setIsdeletePopupOpen] = React.useState(false);
 
   const documents = useSelector((state) => selectAllDocuments(state));
 
-  console.log('documents', documents);
-  const handleDeleteClick = () => {};
+  const [deleteDocumentById, { isLoading }] = useDeleteDocumentByIdMutation();
+
+  const handleDeleteClick = async () => {
+    try {
+      await deleteDocumentById(selectedId)
+        .unwrap()
+        .then(() => {
+          setIsdeletePopupOpen(false);
+          setSelectedId(null);
+          setSelectedTitle(null);
+          throwSuccessToast('Document deleted successfully');
+        });
+    } catch (err) {
+      throwErrorToast(err?.message || 'Unable to delete');
+      console.log('error when deleting', err);
+    }
+  };
 
   const handleDownloadWithQr = () => {};
 
   const handleDownloadWithoutQr = () => {};
 
   const openDeleteDialog = (e, row) => {
-    console.log('row', row);
-    setSelectedTitle(row?.documentTitle);
+    setSelectedTitle(row?.title);
+    setSelectedId(row?.id);
     setIsdeletePopupOpen(true);
   };
 
@@ -36,27 +55,27 @@ export default function DocumentTable() {
   const columns = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'documentTitle',
-      headerName: 'Document Title',
+      field: 'title',
+      headerName: 'Title',
       width: 200,
       editable: true,
     },
     {
-      field: 'created',
-      headerName: 'Created',
-      width: 200,
+      field: 'letterNumber',
+      headerName: 'Letter no.',
+      width: 120,
       editable: true,
     },
     {
-      field: 'status',
-      headerName: 'Status',
-      width: 150,
+      field: 'referenceNumber',
+      headerName: 'Ref. Number',
+      width: 120,
       editable: true,
     },
     {
-      field: 'author',
-      headerName: 'Author',
-      width: 150,
+      field: 'issuedDate',
+      headerName: 'Issued Date',
+      width: 180,
       editable: true,
     },
     {
@@ -95,22 +114,10 @@ export default function DocumentTable() {
     },
   ];
 
-  const rows = [
-    { id: 1, documentTitle: 'Snow', created: 'Jon', status: 35, author: 'Ram' },
-    { id: 2, documentTitle: 'Lannister', created: 'Cersei', status: 42, author: 'Ram' },
-    { id: 3, documentTitle: 'Lannister', created: 'Jaime', status: 45, author: 'Ram' },
-    { id: 4, documentTitle: 'Stark', created: 'Arya', status: 16, author: 'Ram' },
-    { id: 5, documentTitle: 'Targaryen', created: 'Daenerys', status: null, author: 'Ram' },
-    { id: 6, documentTitle: 'Melisandre', created: null, status: 150, author: 'Ram' },
-    { id: 7, documentTitle: 'Clifford', created: 'Ferrara', status: 44, author: 'Ram' },
-    { id: 8, documentTitle: 'Frances', created: 'Rossini', status: 36, author: 'Ram' },
-    { id: 9, documentTitle: 'Roxie', created: 'Harvey', status: 65, author: 'Ram' },
-  ];
-
   return (
     <div>
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} pstatusSize={5} rowsPerPstatusOptions={[5]} />
+        <DataGrid rows={documents} columns={columns} pstatusSize={5} rowsPerPstatusOptions={[5]} />
       </Box>
       <Dialog open={isdeletePopupOpen} onClose={closeDeleteDialog}>
         <DialogContent>
@@ -118,6 +125,7 @@ export default function DocumentTable() {
             deleteMessage={selectedTitle}
             handleDeleteClick={handleDeleteClick}
             handleCloseClick={closeDeleteDialog}
+            isLoading={isLoading}
           />
         </DialogContent>
       </Dialog>
